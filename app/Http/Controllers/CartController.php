@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Produit;
+use App\Models\Commande;
+use Illuminate\Http\Request;
+
+class CartController extends Controller
+{
+
+    public function products()
+    {
+        $produits = Produit::all();
+        return view('produits.products', compact('produits'));
+    }
+
+    public function addToCart(Request $request)
+    {
+        $produit = Produit::findOrFail($request->id);
+
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$produit->id])) {
+            $cart[$produit->id]['quantite'] += $request->quantite;
+        } else {
+            $cart[$produit->id] = [
+                'id' => $produit->id,
+                'nom' => $produit->nom,
+                'prix' => $produit->prix,
+                'quantite' => $request->quantite,
+                "photo" => $produit->photo,
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->back()->with('success', 'Produit ajouté au panier.');
+    }
+
+
+    public function viewCart()
+    {
+        return view('cart.cart');
+    }
+
+   public function checkout(Request $request)
+{
+    $request->validate([
+        'client' => 'required|string',
+        'address' => 'required|string',
+        'phone' => 'nullable|string',
+        'quantites' => 'required|array',
+    ]);
+
+    $cart = session('cart', []);
+
+    if (count($cart) === 0) {
+        return redirect()->back()->with('error', 'Votre panier est vide.');
+    }
+
+    $commande = Commande::create([
+        'client' => $request->client,
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'user_id' => auth()->id(),
+    ]);
+
+    $i = 0;
+    foreach ($cart as $id => $item) {
+        $commande->produits()->attach($id, [
+            'quantite' => $request->quantites[$i] ?? $item['quantite'],
+        ]);
+        $i++;
+    }
+
+    session()->forget('cart');
+
+    return redirect()->route('products.index')->with('success', 'Commande enregistrée avec succès.');
+}
+
+   public function remove($id)
+{
+    $cart = session()->get('cart', []);
+
+    if (isset($cart[$id])) {
+        unset($cart[$id]);
+        session()->put('cart', $cart);
+    }
+
+    return redirect()->back()->with('success', 'Produit retiré du panier.');
+}
+
+    public function empty(Request $request)
+    {
+        $request->session()->forget('cart');
+        return back()->with('success', 'Le panier a été vidé');
+    }
+}
