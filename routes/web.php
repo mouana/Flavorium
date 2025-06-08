@@ -77,7 +77,7 @@ Route::post('/cart', [CartController::class, 'view'])->name('cart.view');
         ->name('mouvements.show');
 
         Route::get('/mon-compte', [UserController::class, 'showAccount'])->name('mon-compte');
-        Route::post('/compte', [ProfileController::class, 'monCompte'])->name('mon-compte');
+        // Route::post('/compte', [ProfileController::class, 'monCompte'])->name('mon-compte');
        Route::put('/mon-compte/update', [ProfileController::class, 'update'])->name('mon-compte.update');
     Route::put('/mon-compte/password', [ProfileController::class, 'updatePassword'])->name('mon-compte.password');
 

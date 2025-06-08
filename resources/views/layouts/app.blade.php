@@ -53,7 +53,7 @@
                 <div class="relative">
                     <button class="flex items-center space-x-2 focus:outline-none">
                         <a href="{{ route('mon-compte') }}" class="hidden sm:inline">Mon compte</a>
-                        <i class="bi bi-person-circle text-xl"></i>
+                        <a href="{{ route('mon-compte') }}"><i class="bi bi-person-circle text-xl"></i></a>
                     </button>
                     <!-- Dropdown menu would go here -->
                 </div>
