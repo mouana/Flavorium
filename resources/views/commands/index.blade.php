@@ -99,7 +99,7 @@
                 <tr>
                     <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">
                         Aucune commande trouvée.
-                        <a href="{{ route('home') }}" class="ml-2 text-blue-600 hover:underline">Retour à l'accueil</a>
+                        <a href="{{ route('commands.create') }}" class="ml-2 text-blue-600 hover:underline">commander!</a>
                     </td>
                 </tr>
                 @endforelse
