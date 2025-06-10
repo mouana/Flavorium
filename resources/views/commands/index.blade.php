@@ -22,6 +22,7 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commande</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">utilisateur</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
@@ -37,6 +38,7 @@
                 @forelse($commandes as $commande)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $commande->id }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ $commande->user->nom ?? 'N/A' }}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ $commande->client ?? 'N/A' }}</td>
                     <td class="px-4 py-3 whitespace-nowrap">
                         @php

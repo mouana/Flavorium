@@ -29,7 +29,7 @@ class User extends Authenticatable
 
     protected $table = 'utilisateurs';
 
-   
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -60,10 +60,10 @@ class User extends Authenticatable
 //     return view('produits.mouvements', compact('produit'));
 // }
 
-public function mouvements()
-{
-    return $this->hasMany(MouvementStock::class, 'produit_id');
-}
+// public function mouvements()
+// {
+//     return $this->hasMany(MouvementStock::class, 'produit_id');
+// }
 
 
 public function notifications()

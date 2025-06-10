@@ -10,25 +10,36 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class CommandeController extends Controller
 {
-    public function index()
-    {
-        $commandes = Commande::with('produits.categorie')
-            ->where('user_id', Auth::id())
+
+public function index()
+{
+    $user = Auth::user();
+
+    if ($user && $user->role === 'admin') {
+        $commandes = Commande::with(['produits.categorie', 'user'])
             ->latest()
-            ->paginate(10)
-            ->map(function ($commande) {
-                $commande->total = $commande->produits->sum(function ($produit) {
-                    return $produit->pivot->quantite * $produit->prix_vente;
-                });
-    
-                $commande->archive_status = $commande->Archive; 
-                $commande->order_status = $commande->status;
-    
-                return $commande;
-            });
-    
-        return view('commands.index', compact('commandes'));
+            ->paginate(10);
+    } else {
+        $commandes = Commande::with(['produits.categorie', 'user'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
     }
+
+    $commandes->getCollection()->transform(function ($commande) {
+        $commande->total = $commande->produits->sum(function ($produit) {
+            return $produit->pivot->quantite * $produit->prix_vente;
+        });
+
+        $commande->archive_status = $commande->Archive;
+        $commande->order_status = $commande->status;
+
+        return $commande;
+    });
+
+    return view('commands.index', compact('commandes'));
+}
+
     
 
     public function show($id)
@@ -78,13 +89,20 @@ public function store(Request $request)
 
     public function create()
     {
+       $user = Auth::user();
+
+    if ($user->is_admin) {
         $produits = Produit::all();
-        return view('commands.create', compact('produits'));
+    } else {
+        $produits = Produit::where('user_id', $user->id)->get();
+    }
+
+    return view('commands.create', compact('produits'));
+
     }
 
     public function edit(Commande $commande)
 {
-    // Ensure user can only edit their own orders
     if ($commande->user_id != Auth::id()) {
         abort(403);
     }

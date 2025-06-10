@@ -22,6 +22,7 @@ class Produit extends Model
         'seuil_critique',
         'categorie_id',
         'photo',
+        'user_id',
     ];
 
     public function categorie()
@@ -34,7 +35,6 @@ class Produit extends Model
         return $this->hasMany(MouvementStock::class);
     }
 
-    // Accessor pour chiffre d'affaires
     public function getChiffreAffairesAttribute()
     {
         return $this->mouvements()
@@ -51,4 +51,10 @@ class Produit extends Model
             ->sum(DB::raw('quantite * prix'));
         return $ca - $cout;
     }
+
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
+
 }

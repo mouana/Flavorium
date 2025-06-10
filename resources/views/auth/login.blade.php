@@ -35,11 +35,6 @@
                     class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
                 Se connecter
             </button>
-
-            <p class="mt-4 text-sm text-center">
-                Pas encore inscrit ?
-                <a href="{{ route('register') }}" class="text-blue-500 hover:underline">Créer un compte</a>
-            </p>
             
         </form>
     </div>

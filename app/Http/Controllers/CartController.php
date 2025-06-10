@@ -5,37 +5,50 @@ namespace App\Http\Controllers;
 use App\Models\Produit;
 use App\Models\Commande;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
 
     public function products()
     {
+        $user = Auth::user();
+
+    if ($user->is_admin) {
         $produits = Produit::all();
-        return view('produits.products', compact('produits'));
+    } else {
+        $produits = Produit::where('user_id', $user->id)->get();
+    }
+
+    return view('produits.products', compact('produits'));
     }
 
     public function addToCart(Request $request)
     {
-        $produit = Produit::findOrFail($request->id);
+     
+    $produit = Produit::findOrFail($request->id);
 
-        $cart = session()->get('cart', []);
+    if ($produit->user_id !== null && $produit->user_id !== Auth::id()) {
+        return redirect()->back()->with('error', 'Vous ne pouvez pas ajouter ce produit au panier.');
+    }
 
-        if (isset($cart[$produit->id])) {
-            $cart[$produit->id]['quantite'] += $request->quantite;
-        } else {
-            $cart[$produit->id] = [
-                'id' => $produit->id,
-                'nom' => $produit->nom,
-                'prix' => $produit->prix,
-                'quantite' => $request->quantite,
-                "photo" => $produit->photo,
-            ];
-        }
+    $cart = session()->get('cart', []);
 
-        session()->put('cart', $cart);
+    if (isset($cart[$produit->id])) {
+        $cart[$produit->id]['quantite'] += $request->quantite;
+    } else {
+        $cart[$produit->id] = [
+            'id' => $produit->id,
+            'nom' => $produit->nom,
+            'prix' => $produit->prix,
+            'quantite' => $request->quantite,
+            "photo" => $produit->photo,
+        ];
+    }
 
-        return redirect()->back()->with('success', 'Produit ajouté au panier.');
+    session()->put('cart', $cart);
+
+    return redirect()->back()->with('success', 'Produit ajouté au panier.');
     }
 
 
@@ -76,7 +89,7 @@ class CartController extends Controller
 
     session()->forget('cart');
 
-    return redirect()->route('products.index')->with('success', 'Commande enregistrée avec succès.');
+    return redirect()->route('commands.create')->with('success', 'Commande enregistrée avec succès.');
 }
 
    public function remove($id)

@@ -13,50 +13,65 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
         $counts = [
-            'productCount' => Produit::count(),
+            'productCount' => $user->is_admin ? Produit::count() : Produit::where('user_id', $user->id)->count(),
             'categoryCount' => Categorie::count(),
             'userCount' => User::count(),
         ];
 
-        // Fetch recent commandes for authenticated user or admin
         $query = Commande::with('produits')->latest()->take(5);
-
-        if (!Auth::user()->is_admin) {
-            $query->where('user_id', Auth::id());
+        if (!$user->is_admin) {
+            $query->where('user_id', $user->id);
         }
-
         $commandes = $query->get();
 
-        $financials = [
-            'totalChiffreAffaires' => $this->calculateChiffreAffaires(),
-            'netProfit' => $this->calculateNetProfit(),
-        ];
+        $userProductCount = Produit::where('user_id', $user->id)->count();
+
+        if ($user->is_admin || $userProductCount > 0) {
+            $financials = [
+                'totalChiffreAffaires' => $this->calculateChiffreAffaires($user),
+                'netProfit' => $this->calculateNetProfit($user),
+            ];
+        } else {
+            $financials = [
+                'totalChiffreAffaires' => 0,
+                'netProfit' => 0,
+                'message' => 'Aucun produit trouvé. Aucun chiffre d\'affaires ou bénéfice.'
+            ];
+        }
 
         return view('dashboard', array_merge($counts, [
             'commandes' => $commandes,
         ], $financials));
     }
 
-    protected function calculateChiffreAffaires(): float
-{
-    return DB::table('commandes')
-        ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
-        ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
-        ->where('commandes.status', '!=', 'annule')
-        ->sum(DB::raw('commande_produit.quantite * produits.prix_vente'));
-}
+    protected function calculateChiffreAffaires($user): float
+    {
+        $query = DB::table('commandes')
+            ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
+            ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
+            ->where('commandes.status', '!=', 'annule');
 
-    
+        if (!$user->is_admin) {
+            $query->where('produits.user_id', $user->id);
+        }
 
-protected function calculateNetProfit(): float
-{
-    return DB::table('commandes')
-        ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
-        ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
-        ->where('commandes.status', '!=', 'annule')
-        ->sum(DB::raw('commande_produit.quantite * (produits.prix_vente - produits.prix)'));
-}
+        return (float) $query->sum(DB::raw('commande_produit.quantite * produits.prix_vente'));
+    }
 
+    protected function calculateNetProfit($user): float
+    {
+        $query = DB::table('commandes')
+            ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
+            ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
+            ->where('commandes.status', '!=', 'annule');
 
+        if (!$user->is_admin) {
+            $query->where('produits.user_id', $user->id);
+        }
+
+        return (float) $query->sum(DB::raw('commande_produit.quantite * (produits.prix_vente - produits.prix)'));
+    }
 }

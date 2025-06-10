@@ -107,6 +107,7 @@ function confirmDelete(form) {
     }).then((result) => {
         if (result.isConfirmed) {
             form.submit();
+                console.log("Delete script loaded");
         }
     });
 }

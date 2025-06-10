@@ -16,7 +16,7 @@ use App\Http\Controllers\MouvementStockController;
 // Public routes (no auth required)
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+// Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 Route::get('/acceuil', function () {
     return view('front.acceuil');
@@ -29,12 +29,13 @@ Route::get('/contact', function () {
 })->name('Front.contact');
 Route::get('acceuil',[HomeController::class,'index'])->name('Front.Acceuil');
 Route::get('/nos-produits', [ProduitController::class, 'front'])->name('produits.front');
-Route::get('/noproduit', [ProduitController::class, 'catalogue'])->name('commands.cataloge');
+// Route::get('/noproduit', [ProduitController::class, 'catalogue'])->name('commands.cataloge');
+Route::get('/cataloges', [ProduitController::class, 'front'])->name('produits.front');
 
 // Authenticated routes group
 Route::middleware(['auth'])->group(function () {
     Route::get('/produits', [ProduitController::class, 'index'])->name('produits.index');
-    // Auth
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     // Dashboard
@@ -47,7 +48,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/produits/{id}/edit', [ProduitController::class, 'edit'])->name('produits.edit');
     Route::put('/produits/{id}', [ProduitController::class, 'update'])->name('produits.update');
     Route::delete('/produits/{id}', [ProduitController::class, 'destroy'])->name('produits.destroy');
-    Route::get('/cataloges', [ProduitController::class, 'front'])->name('produits.front');
     Route::get('/cart', [CommandeController::class, 'showCart'])->name('cart.show');
     // Route::get('/cart/add/{id}', [CommandeController::class, 'addToCart'])->name('cart.add');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
