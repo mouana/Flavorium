@@ -27,7 +27,7 @@
             <div class="lg:w-1/2">
                 <h2 class="text-3xl font-bold text-gray-800 mb-6">Qui sommes-nous ?</h2>
                 <p class="text-gray-600 mb-6">
-                    Fondée en 2010, Flavorium est devenue un acteur majeur dans la distribution de produits alimentaires en gros, 
+                    Fondée en 2021, Flavorium est devenue un acteur majeur dans la distribution de produits alimentaires en gros, 
                     spécialisée dans les boissons gazeuses, biscuits, et produits d'épicerie fine.
                 </p>
                 <p class="text-gray-600 mb-6">
