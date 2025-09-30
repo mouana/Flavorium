@@ -116,7 +116,7 @@
     </section>
 
     <!-- Team Section -->
-    <section class="py-16 bg-gray-50">
+    {{-- <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Notre Équipe</h2>
             <p class="text-xl text-center text-gray-600 max-w-2xl mx-auto mb-16">
@@ -177,7 +177,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 </main>
 
     @include('layouts.footer')

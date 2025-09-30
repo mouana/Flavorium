@@ -18,7 +18,7 @@
                         <a href="#products" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-105 shadow-lg">
                             Nos produits
                         </a>
-                        <a href="#" class="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg font-medium transition duration-300">
+                        <a href="contact" class="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg font-medium transition duration-300">
                             Nous contacter
                         </a>
                     </div>
@@ -107,7 +107,7 @@
         </section>
 
         <!-- Testimonials Section -->
-        <section class="py-16 bg-gray-50">
+        {{-- <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-16">
                     <h2 class="text-3xl md:text-4xl font-bold mb-4">Ce que disent nos clients</h2>
@@ -173,10 +173,10 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> --}}
 
         <!-- Newsletter Section -->
-        <section class="py-16 bg-blue-600 text-white">
+        {{-- <section class="py-16 bg-blue-600 text-white">
             <div class="container mx-auto px-4 text-center">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4">Abonnez-vous à notre newsletter</h2>
                 <p class="text-blue-100 max-w-2xl mx-auto mb-8">Recevez en exclusivité nos nouveautés, offres spéciales et conseils d'utilisation.</p>
@@ -187,7 +187,7 @@
                     </button>
                 </form>
             </div>
-        </section>
+        </section> --}}
     </main>
 
     <!-- Footer -->

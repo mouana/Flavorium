@@ -41,12 +41,15 @@
 <body class="h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     <header class="bg-primary-600 text-white shadow-md">
         <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
-                    <i class="bi bi-speedometer2 text-xl"></i>
-                    <span class="text-lg font-semibold">Dashboard</span>
-                </a>
-            </div>
+            {{-- in app.blade.php --}}
+@unless(View::hasSection('hide_dashboard_link'))
+    <div class="flex items-center space-x-4">
+        <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
+            <i class="bi bi-speedometer2 text-xl"></i>
+            <span class="text-lg font-semibold">Dashboard</span>
+        </a>
+    </div>
+
             
             <div class="flex items-center space-x-4">
                 <!-- Dark mode toggle -->
@@ -64,6 +67,8 @@
                     <!-- Dropdown menu would go here -->
                 </div>
             </div>
+            @endunless
+
         </nav>
     </header>
 
@@ -73,7 +78,7 @@
 
     <footer class="bg-gray-800 text-white py-4 mt-8">
         <div class="container mx-auto px-4 text-center">
-            <p>&copy; {{ date('Y') }} Product Management System. Tous droits réservés.</p>
+            <p>&copy; {{ date('Y') }} Product Flavorium. Tous droits réservés.</p>
         </div>
     </footer>
 

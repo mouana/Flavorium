@@ -4,7 +4,7 @@
     @include('layouts.header')
 
     <main>
-        <section class="px-6 py-12 bg-gray-100">
+        <section class="px-6 py-12 bg-gray-50">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4">Nos produits phares</h2>
                 <p class="text-gray-600 max-w-2xl mx-auto">Découvrez notre sélection exclusive</p>

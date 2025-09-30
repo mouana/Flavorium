@@ -111,7 +111,7 @@
                     </div>
 
                     <!-- Inventory Section -->
-                    <div class="bg-blue-50 p-4 rounded-md md:col-span-2">
+                    {{-- <div class="bg-blue-50 p-4 rounded-md md:col-span-2">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Gestion de Stock</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -131,7 +131,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Category Selection -->
                     <div class="md:col-span-2">

@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+@section('hide_dashboard_link', true)
+
 <div class="invoice-container">
     <div class="header">
         <h1>Facture #{{ $commande->id ?? 'N/A' }}</h1>
