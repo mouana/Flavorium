@@ -23,7 +23,7 @@
                 
                 <div class="space-y-2">
                     <h2 class="text-lg font-semibold text-gray-800">{{ $produit->nom }}</h2>
-                    <p class="text-gray-600">Prix : <span class="font-medium">{{ $produit->prix }} MAD</span></p>
+                    <p class="text-gray-600">Prix : <span class="font-medium">{{ $produit->prix_vente }} MAD</span></p>
                     
                     <div class="flex items-center gap-4 mt-3">
                         <input type="number" name="quantite" value="1" min="1" class="w-20 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">

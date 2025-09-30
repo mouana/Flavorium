@@ -18,28 +18,51 @@
             @csrf
             <div class="space-y-4 mb-8">
                 @foreach (session('cart') as $id => $item)
-                    <div class="border p-4 rounded-lg flex justify-between items-start">
-                        <div class="flex-1">
-                            <input type="hidden" name="produits[]" value="{{ $item['id'] }}">
-                            <h3 class="font-semibold text-lg text-gray-800">{{ $item['nom'] }}</h3>
-                            <p class="text-gray-600">Prix unitaire : {{ number_format($item['prix'], 2) }} MAD</p>
-                            <div class="mt-2 flex items-center">
-                                <label class="mr-2 text-gray-700">Quantité:</label>
-                                <input type="number" name="quantites[]" value="{{ $item['quantite'] }}" min="1"
-                                       class="border p-1 w-20 rounded">
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-gray-800">{{ number_format($item['prix'] * $item['quantite'], 2) }} MAD</p>
+    <div class="border p-4 rounded-lg flex justify-between items-start">
+        <div class="flex items-start space-x-4">
+            <!-- Photo -->
+            @if(!empty($item['photo']))
+                <img src="{{ asset('storage/' . $item['photo']) }}" alt="{{ $item['nom'] }}" 
+                     class="w-24 h-24 object-cover rounded-lg">
+            @else
+                <img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" 
+                     class="w-24 h-24 object-cover rounded-lg">
+            @endif
 
-                            <button type="button"
-                                    class="mt-2 text-red-500 hover:text-red-700 text-sm remove-from-cart"
-                                    data-id="{{ $id }}">
-                                <i class="fas fa-times mr-1"></i> Supprimer
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
+            <!-- Details -->
+            <div>
+                <input type="hidden" name="produits[]" value="{{ $item['id'] }}">
+                <h3 class="font-semibold text-lg text-gray-800">{{ $item['nom'] }}</h3>
+
+                <div class="mt-2">
+                    <label class="text-gray-700">Prix :</label>
+                    <input type="number" step="0.01" name="prix[]" value="{{ $item['prix'] }}" 
+                           class="border p-1 w-24 rounded">
+                </div>
+
+                <div class="mt-2">
+                    <label class="text-gray-700">Quantité :</label>
+                    <input type="number" name="quantites[]" value="{{ $item['quantite'] }}" min="1"
+                           class="border p-1 w-20 rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- Total + Supprimer -->
+        <div class="text-right">
+            <p class="font-bold text-gray-800">
+                {{ number_format($item['prix'] * $item['quantite'], 2) }} MAD
+            </p>
+
+            <button type="button"
+                    class="mt-2 text-red-500 hover:text-red-700 text-sm remove-from-cart"
+                    data-id="{{ $id }}">
+                <i class="fas fa-times mr-1"></i> Supprimer
+            </button>
+        </div>
+    </div>
+@endforeach
+
             </div>
 
            <div class="bg-gray-50 p-6 rounded-lg">

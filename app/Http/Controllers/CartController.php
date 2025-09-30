@@ -40,7 +40,7 @@ class CartController extends Controller
         $cart[$produit->id] = [
             'id' => $produit->id,
             'nom' => $produit->nom,
-            'prix' => $produit->prix,
+            'prix' => $produit->prix_vente,
             'quantite' => $request->quantite,
             "photo" => $produit->photo,
         ];
@@ -57,16 +57,17 @@ class CartController extends Controller
         return view('cart.cart');
     }
 
-   public function checkout(Request $request)
+public function checkout(Request $request)
 {
     $request->validate([
         'client' => 'required|string',
         'address' => 'required|string',
         'phone' => 'nullable|string',
         'quantites' => 'required|array',
+        'prix' => 'required|array',
     ]);
 
-    $cart = session('cart', []);
+    $cart = array_values(session('cart', [])); 
 
     if (count($cart) === 0) {
         return redirect()->back()->with('error', 'Votre panier est vide.');
@@ -79,18 +80,19 @@ class CartController extends Controller
         'user_id' => auth()->id(),
     ]);
 
-    $i = 0;
-    foreach ($cart as $id => $item) {
-        $commande->produits()->attach($id, [
-            'quantite' => $request->quantites[$i] ?? $item['quantite'],
+    foreach ($cart as $index => $item) {
+        $commande->produits()->attach($item['id'], [
+            'quantite' => $request->quantites[$index],
+            'prix' => $request->prix[$index], // 👈 this will now match correctly
         ]);
-        $i++;
     }
 
     session()->forget('cart');
 
     return redirect()->route('commands.create')->with('success', 'Commande enregistrée avec succès.');
 }
+
+
 
    public function remove($id)
 {
