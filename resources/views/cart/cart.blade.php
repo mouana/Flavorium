@@ -1,137 +1,117 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Votre Panier</h2>
+<div class="container mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6">🛒 Votre Panier</h1>
 
-    @if (session('cart') && count(session('cart')) > 0)
-        <div class="mb-6">
-            <form method="POST" action="{{ route('cart.empty') }}" class="inline-block">
-                @csrf
-                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                    <i class="fas fa-trash mr-1"></i> Vider le panier
-                </button>
-            </form>
-        </div>
-
-        <form method="POST" action="{{ route('cart.checkout') }}">
+    @if(session('cart') && count(session('cart')) > 0)
+    <div class="flex justify-end mb-4">
+        <!-- Formulaire POST pour vider le panier -->
+        <form action="{{ route('cart.empty') }}" method="POST">
             @csrf
-            <div class="space-y-4 mb-8">
-                @foreach (session('cart') as $id => $item)
-    <div class="border p-4 rounded-lg flex justify-between items-start">
-        <div class="flex items-start space-x-4">
-            <!-- Photo -->
-            @if(!empty($item['photo']))
-                <img src="{{ asset('storage/' . $item['photo']) }}" alt="{{ $item['nom'] }}" 
-                     class="w-24 h-24 object-cover rounded-lg">
-            @else
-                <img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" 
-                     class="w-24 h-24 object-cover rounded-lg">
-            @endif
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                Vider le panier
+            </button>
+        </form>
+    </div>
 
-            <!-- Details -->
-            <div>
-                <input type="hidden" name="produits[]" value="{{ $item['id'] }}">
-                <h3 class="font-semibold text-lg text-gray-800">{{ $item['nom'] }}</h3>
+    <form action="{{ route('checkout') }}" method="POST" id="cart-form">
+        @csrf
 
-                <div class="mt-2">
-                    <label class="text-gray-700">Prix :</label>
-                    <input type="number" step="0.01" name="prix[]" value="{{ $item['prix'] }}" 
-                           class="border p-1 w-24 rounded">
-                </div>
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow" id="cart-table">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th>Photo</th>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                    <th>Prix (modifiable)</th>
+                    <th>Sous-total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @php $total = 0; @endphp
+                @foreach (session('cart', []) as $index => $item)
+                    @php
+                        $sous_total = $item['prix'] * $item['quantite'];
+                        $total += $sous_total;
+                    @endphp
+                    <tr class="cart-item">
+                        <td>
+                            @if($item['photo'])
+                                <img src="{{ Storage::url($item['photo']) }}" class="w-16 h-16 object-cover rounded" alt="{{ $item['nom'] }}">
+                            @endif
+                            <input type="hidden" name="produits[]" value="{{ $item['id'] }}">
+                        </td>
+                        <td>{{ $item['nom'] }}</td>
 
-                <div class="mt-2">
-                    <label class="text-gray-700">Quantité :</label>
-                    <input type="number" name="quantites[]" value="{{ $item['quantite'] }}" min="1"
-                           class="border p-1 w-20 rounded">
-                </div>
-            </div>
-        </div>
+                        <td>
+                            <input type="number" name="quantites[]" value="{{ $item['quantite'] }}" min="1" class="quantite w-20 border rounded-md p-1">
+                        </td>
 
-        <!-- Total + Supprimer -->
-        <div class="text-right">
-            <p class="font-bold text-gray-800">
-                {{ number_format($item['prix'] * $item['quantite'], 2) }} MAD
-            </p>
+                        <td>
+                            <input type="number" name="prix[]" value="{{ $item['prix'] }}" step="0.01" min="0" class="prix w-28 border rounded-md p-1">
+                        </td>
 
-            <button type="button"
-                    class="mt-2 text-red-500 hover:text-red-700 text-sm remove-from-cart"
-                    data-id="{{ $id }}">
-                <i class="fas fa-times mr-1"></i> Supprimer
+                        <td class="sous-total">{{ number_format($sous_total, 2) }} MAD</td>
+
+                        <td>
+                            <!-- Formulaire POST pour supprimer le produit -->
+                            <form action="{{ route('cart.remove', $item['id']) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="text-red-600 hover:underline">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr class="bg-gray-50">
+                    <td colspan="4" class="text-right font-bold">Total :</td>
+                    <td id="total" class="font-bold">{{ number_format($total, 2) }} MAD</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-6">
+            <input type="text" name="client" placeholder="Nom du client" class="w-full border rounded-md p-2 mb-2" required>
+            <input type="text" name="address" placeholder="Adresse" class="w-full border rounded-md p-2 mb-2" required>
+            <input type="text" name="phone" placeholder="Téléphone" class="w-full border rounded-md p-2 mb-4">
+
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                Passer la commande
             </button>
         </div>
-    </div>
-@endforeach
-
-            </div>
-
-           <div class="bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-xl font-semibold mb-4 text-gray-800">Informations du client</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 mb-1">Nom complet</label>
-                        <input type="text" name="client" placeholder="Votre nom complet" required 
-                               class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-1">Téléphone</label>
-                        <input type="tel" name="phone" placeholder="Votre numéro de téléphone" 
-                               class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-1">Adresse</label>
-                        <textarea name="address" placeholder="Votre adresse de livraison" rows="3" required 
-                                  class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"></textarea>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-between items-center">
-                    <a href="{{ route('commands.create') }}" class="text-blue-600 hover:underline">
-                        <i class="fas fa-arrow-left mr-1"></i> Continuer vos achats
-                    </a>
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        Valider la commande <i class="fas fa-check ml-1"></i>
-                    </button>
-                </div>
-            </div>
-
-        </form>
+    </form>
     @else
-        <div class="text-center py-12">
-            <div class="text-gray-400 text-5xl mb-4">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
-            <h3 class="text-xl font-medium text-gray-700 mb-2">Votre panier est vide</h3>
-            <p class="text-gray-500 mb-6">Ajoutez des produits à votre panier avant de passer commande</p>
-            <a href="{{ route('commands.create') }}"
-               class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block font-medium">
-                <i class="fas fa-store mr-2"></i> Continuer vos achats
-            </a>
+        <div class="bg-yellow-100 text-yellow-800 px-4 py-3 rounded">
+            Votre panier est vide.
         </div>
     @endif
 </div>
 
 <script>
-    document.querySelectorAll('.remove-from-cart').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.dataset.id;
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.cart-item');
+    const totalCell = document.getElementById('total');
 
-            fetch(`{{ url('cart/remove') }}/${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(res => {
-                if (res.ok) {
-                    location.reload(); 
-                } else {
-                    alert("Une erreur ");
-                }
-            });
+    function updateTotals() {
+        let total = 0;
+        rows.forEach(row => {
+            const q = parseFloat(row.querySelector('.quantite').value) || 0;
+            const p = parseFloat(row.querySelector('.prix').value) || 0;
+            const st = q * p;
+            row.querySelector('.sous-total').innerText = st.toFixed(2) + ' MAD';
+            total += st;
         });
+        totalCell.innerText = total.toFixed(2) + ' MAD';
+    }
+
+    rows.forEach(row => {
+        row.querySelector('.quantite').addEventListener('input', updateTotals);
+        row.querySelector('.prix').addEventListener('input', updateTotals);
     });
+});
 </script>
 @endsection

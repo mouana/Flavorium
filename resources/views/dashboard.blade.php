@@ -56,22 +56,25 @@
             </div>
 
             <!-- Profit Card -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1">
-                <div class="p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Bénéfice net</p>
-                            <h3 class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ number_format($netProfit ?? 0, 2) }} dh</h3>
-                        </div>
-                        <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Ventes - Achats</p>
+            <a href="{{ route('dashboard.statistiques') }}">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:transform hover:-translate-y-1 cursor-pointer">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Bénéfice net</p>
+                    <h3 class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ number_format($netProfit ?? 0, 2) }} dh</h3>
+                </div>
+                <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                    </svg>
                 </div>
             </div>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Ventes - Achats</p>
+        </div>
+    </div>
+</a>
+
         </div>
 
         <!-- Quick Actions -->

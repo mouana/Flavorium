@@ -30,11 +30,9 @@
                 @foreach($commande->produits as $produit)
                 <tr>
                     <td>{{ $produit->nom }}</td>
-                    <td class="text-right">{{ number_format($produit->prix_vente, 2) }} MAD</td>
+                    <td class="text-right">{{ number_format($produit->pivot->prix, 2) }} MAD</td>
                     <td class="text-right">{{ $produit->pivot->quantite }}</td>
-                    <td class="text-right">
-                        {{ number_format($produit->pivot->quantite * $produit->prix_vente, 2) }} MAD
-                    </td>
+                    <td class="text-right">{{ number_format($produit->pivot->sous_total, 2) }} MAD</td>
                 </tr>
                 @endforeach
             @else
@@ -46,15 +44,7 @@
     </table>
 
     <div class="total-section">
-        @php
-            $total = 0;
-            if($commande->produits) {
-                foreach($commande->produits as $produit) {
-                    $total += $produit->prix_vente * $produit->pivot->quantite;
-                }
-            }
-        @endphp
-        <h3>Total: {{ number_format($commande->total ?? $total, 2) }} MAD</h3>
+        <h3>Total: {{ number_format($commande->total ?? 0, 2) }} MAD</h3>
     </div>
 
     <div class="footer">

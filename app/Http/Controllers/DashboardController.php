@@ -2,76 +2,100 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produit;
+use Carbon\Carbon;
 use App\Models\User;
-use App\Models\Categorie;
+use App\Models\Produit;
 use App\Models\Commande;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Categorie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
+ public function index()
+{
+    $productCount = Produit::count();
 
-        $counts = [
-            'productCount' => $user->is_admin ? Produit::count() : Produit::where('user_id', $user->id)->count(),
-            'categoryCount' => Categorie::count(),
-            'userCount' => User::count(),
-        ];
+    $now = Carbon::now();
 
-        $query = Commande::with('produits')->latest()->take(5);
-        if (!$user->is_admin) {
-            $query->where('user_id', $user->id);
+    // Récupérer uniquement les commandes non annulées du mois courant
+    $commandes = Commande::with('produits')
+        ->where('status', '!=', 'annule')
+        ->whereYear('created_at', $now->year)
+        ->whereMonth('created_at', $now->month)
+        ->get();
+
+    $totalChiffreAffaires = 0;
+    $netProfit = 0;
+
+    foreach ($commandes as $commande) {
+        foreach ($commande->produits as $produit) {
+            $totalChiffreAffaires += $produit->pivot->prix * $produit->pivot->quantite;
+            $netProfit += ($produit->pivot->prix - $produit->prix) * $produit->pivot->quantite;
         }
-        $commandes = $query->get();
-
-        $userProductCount = Produit::where('user_id', $user->id)->count();
-
-        if ($user->is_admin || $userProductCount > 0) {
-            $financials = [
-                'totalChiffreAffaires' => $this->calculateChiffreAffaires($user),
-                'netProfit' => $this->calculateNetProfit($user),
-            ];
-        } else {
-            $financials = [
-                'totalChiffreAffaires' => 0,
-                'netProfit' => 0,
-                'message' => 'Aucun produit trouvé. Aucun chiffre d\'affaires ou bénéfice.'
-            ];
-        }
-
-        return view('dashboard', array_merge($counts, [
-            'commandes' => $commandes,
-        ], $financials));
     }
 
-    protected function calculateChiffreAffaires($user): float
-    {
-        $query = DB::table('commandes')
-            ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
-            ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
-            ->where('commandes.status', '!=', 'annule');
+    return view('dashboard', compact('productCount', 'totalChiffreAffaires', 'netProfit'));
+}
 
-        if (!$user->is_admin) {
-            $query->where('produits.user_id', $user->id);
+
+public function statistiquesAchats()
+{
+    setlocale(LC_TIME, 'fr_FR.UTF-8'); // Pour avoir les noms de mois en français
+
+    // Totaux par commande
+    $totalsParCommande = Commande::with('produits')->get()->mapWithKeys(function ($commande) {
+        $totalAchat = 0;
+        $netProfit = 0;
+
+        foreach ($commande->produits as $produit) {
+            $totalAchat += $produit->pivot->prix * $produit->pivot->quantite;
+            $netProfit += ($produit->pivot->prix - $produit->prix) * $produit->pivot->quantite;
         }
 
-        return (float) $query->sum(DB::raw('commande_produit.quantite * produits.prix_vente'));
-    }
+        return [$commande->id => [
+            'total_achat' => $totalAchat,
+            'net_profit' => $netProfit
+        ]];
+    });
 
-    protected function calculateNetProfit($user): float
-    {
-        $query = DB::table('commandes')
-            ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
-            ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
-            ->where('commandes.status', '!=', 'annule');
+    // Totaux par mois
+    $totalsParMois = DB::table('commandes')
+        ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
+        ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
+        ->select(
+            DB::raw('YEAR(commandes.created_at) as annee'),
+            DB::raw('MONTH(commandes.created_at) as mois_num'),
+            DB::raw('SUM(commande_produit.prix * commande_produit.quantite) as total_achat'),
+            DB::raw('SUM((commande_produit.prix - produits.prix) * commande_produit.quantite) as net_profit')
+        )
+        ->groupBy('annee', 'mois_num')
+        ->orderBy('annee')
+        ->orderBy('mois_num')
+        ->get()
+        ->map(function($row) {
+            $row->mois = strftime('%B', mktime(0, 0, 0, $row->mois_num, 1)); // nom du mois en français
+            return $row;
+        });
 
-        if (!$user->is_admin) {
-            $query->where('produits.user_id', $user->id);
-        }
+    // Totaux par année
+    $totalsParAnnee = DB::table('commandes')
+        ->join('commande_produit', 'commandes.id', '=', 'commande_produit.commande_id')
+        ->join('produits', 'commande_produit.produit_id', '=', 'produits.id')
+        ->select(
+            DB::raw('YEAR(commandes.created_at) as annee'),
+            DB::raw('SUM(commande_produit.prix * commande_produit.quantite) as total_achat'),
+            DB::raw('SUM((commande_produit.prix - produits.prix) * commande_produit.quantite) as net_profit')
+        )
+        ->groupBy('annee')
+        ->orderBy('annee')
+        ->get();
 
-        return (float) $query->sum(DB::raw('commande_produit.quantite * (produits.prix_vente - produits.prix)'));
-    }
+    return view('statistiques', compact(
+        'totalsParCommande',
+        'totalsParMois',
+        'totalsParAnnee'
+    ));
+}
+
 }

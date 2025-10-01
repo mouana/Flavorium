@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Commande extends Model
 {
 
-    protected $fillable =['user_id','phone','address','client'];
+protected $fillable = ['client','address','phone','user_id','total'];
     // protected $table ="";
     public function user()
 {
@@ -17,7 +17,7 @@ class Commande extends Model
 public function produits()
 {
     return $this->belongsToMany(Produit::class, 'commande_produit')
-                ->withPivot('quantite')
+                ->withPivot('quantite','prix','sous_total')
                 ->withTimestamps();
 }
 
