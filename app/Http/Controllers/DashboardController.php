@@ -12,25 +12,38 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
- public function index()
+public function index()
 {
     $productCount = Produit::count();
-
     $now = Carbon::now();
 
-    // Récupérer uniquement les commandes non annulées du mois courant
-    $commandes = Commande::with('produits')
+    $chiffreAffaireQuery = Commande::with('produits')
+        ->where('status', '!=', 'annule')
+        ->whereYear('created_at', $now->year)
+        ->whereMonth('created_at', $now->month);
+
+    if (Auth::user()->role !== 'admin') {
+        $chiffreAffaireQuery->where('user_id', Auth::id());
+    }
+
+    $commandes = $chiffreAffaireQuery->get();
+
+    $totalChiffreAffaires = 0;
+    foreach ($commandes as $commande) {
+        foreach ($commande->produits as $produit) {
+            $totalChiffreAffaires += $produit->pivot->prix * $produit->pivot->quantite;
+        }
+    }
+
+    $allCommandes = Commande::with('produits')
         ->where('status', '!=', 'annule')
         ->whereYear('created_at', $now->year)
         ->whereMonth('created_at', $now->month)
         ->get();
 
-    $totalChiffreAffaires = 0;
     $netProfit = 0;
-
-    foreach ($commandes as $commande) {
+    foreach ($allCommandes as $commande) {
         foreach ($commande->produits as $produit) {
-            $totalChiffreAffaires += $produit->pivot->prix * $produit->pivot->quantite;
             $netProfit += ($produit->pivot->prix - $produit->prix) * $produit->pivot->quantite;
         }
     }
@@ -39,9 +52,10 @@ class DashboardController extends Controller
 }
 
 
+
 public function statistiquesAchats()
 {
-    setlocale(LC_TIME, 'fr_FR.UTF-8'); // Pour avoir les noms de mois en français
+    setlocale(LC_TIME, 'fr_FR.UTF-8'); 
 
     // Totaux par commande
     $totalsParCommande = Commande::with('produits')->get()->mapWithKeys(function ($commande) {

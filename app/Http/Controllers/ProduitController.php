@@ -14,7 +14,7 @@ class ProduitController extends Controller
     $userId = Auth::id();
 
     $produits = Produit::with('categorie')
-                ->where('user_id', $userId)
+                // ->where('user_id', $userId)
                 ->paginate(10);
 
     return view('produits.index', compact('produits'));

@@ -89,9 +89,7 @@ class CommandeController extends Controller
     {
         $user = Auth::user();
 
-        $produits = $user->is_admin
-            ? Produit::all()
-            : Produit::where('user_id', $user->id)->get();
+        $produits = Produit::all();
 
         return view('commands.create', compact('produits'));
     }
